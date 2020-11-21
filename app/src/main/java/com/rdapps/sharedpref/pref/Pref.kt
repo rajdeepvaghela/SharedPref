@@ -66,7 +66,7 @@ enum class Pref(val defaultValue: Any) {
             is Int -> {
                 return sharedPref.getInt(getKey(secure), defaultValue) as T
             }
-            else -> throw RuntimeException("No support for type T")
+            else -> throw RuntimeException("Return type not supported")
         }
     }
 }
