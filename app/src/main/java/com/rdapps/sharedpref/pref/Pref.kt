@@ -1,72 +1,46 @@
 package com.rdapps.sharedpref.pref
 
 import android.content.Context
-import android.content.SharedPreferences
-import com.rdapps.sharedpref.App
+import androidx.core.content.edit
 import com.rdapps.sharedpref.BuildConfig
 import com.rdapps.sharedpref.utils.Base64Util
-import java.util.*
 
 /**
  * Created by Rajdeep Vaghela on 21/11/20
  */
 
-enum class Pref(val defaultValue: Any) {
-    USER_NAME(""),
-    USER_AGE(20),
-    LOGGED_IN_TIME(0L),
-    IS_LOGGED_IN(false);
-
-    private val prefName = BuildConfig.APPLICATION_ID
-    val sharedPref: SharedPreferences =
-        App.context().getSharedPreferences(prefName, Context.MODE_PRIVATE)
+enum class Pref(val def: Any) {
+    UserName(""),
+    UserAge(0),
+    LoggedInTime(0L),
+    IsLoggedIn(false);
 
     fun getKey(secure: Boolean): String {
-        val key = name.toLowerCase(Locale.ROOT)
+        val key = name.lowercase()
         return if (secure) Base64Util.stringToBase64(key) else key
     }
 
-    fun setValue(value: Any, secure: Boolean = false) {
-
-        when (value) {
-            is String -> {
-                sharedPref.edit().putString(getKey(secure), value).apply()
-            }
-            is Boolean -> {
-                sharedPref.edit().putBoolean(getKey(secure), value).apply()
-            }
-            is Float -> {
-                sharedPref.edit().putFloat(getKey(secure), value).apply()
-            }
-            is Long -> {
-                sharedPref.edit().putLong(getKey(secure), value).apply()
-            }
-            is Int -> {
-                sharedPref.edit().putInt(getKey(secure), value).apply()
+    context (Context) inline fun <reified T> set(value: T, secure: Boolean = false) {
+        val pref = getSharedPreferences(BuildConfig.APPLICATION_ID, Context.MODE_PRIVATE)
+        pref.edit {
+            when (value) {
+                is String -> putString(getKey(secure), value)
+                is Boolean -> putBoolean(getKey(secure), value)
+                is Float -> putFloat(getKey(secure), value)
+                is Long -> putLong(getKey(secure), value)
+                is Int -> putInt(getKey(secure), value)
             }
         }
     }
 
-    inline fun <reified T> getValue(default: T? = null): T {
-        val secure = !sharedPref.contains(getKey(false))
-
-        return when (val defaultValue = default ?: this.defaultValue) {
-            is String -> {
-                sharedPref.getString(getKey(secure), defaultValue) as T
-            }
-            is Boolean -> {
-                return sharedPref.getBoolean(getKey(secure), defaultValue) as T
-            }
-            is Float -> {
-                return sharedPref.getFloat(getKey(secure), defaultValue) as T
-            }
-            is Long -> {
-                return sharedPref.getLong(getKey(secure), defaultValue) as T
-            }
-            is Int -> {
-                return sharedPref.getInt(getKey(secure), defaultValue) as T
-            }
-            else -> throw RuntimeException("Return type not supported")
-        }
+    context (Context) inline fun <reified T> get(
+        default: T? = null,
+        isSecure: Boolean? = null,
+        clazz: Class<T> = T::class.java
+    ): T {
+        val pref = getSharedPreferences(BuildConfig.APPLICATION_ID, Context.MODE_PRIVATE)
+        val secure = isSecure ?: !pref.contains(getKey(false))
+        val value = pref.all[getKey(secure)] ?: default ?: def
+        return clazz.cast(value) ?: default ?: error("Cast Failure")
     }
 }
