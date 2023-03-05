@@ -15,20 +15,20 @@ enum class Pref(val def: Any) {
     LoggedInTime(0L),
     IsLoggedIn(false);
 
-    fun getKey(secure: Boolean): String {
+    fun getKey(isSecure: Boolean): String {
         val key = name.lowercase()
-        return if (secure) Base64Util.stringToBase64(key) else key
+        return if (isSecure) Base64Util.stringToBase64(key) else key
     }
 
-    context (Context) inline fun <reified T> set(value: T, secure: Boolean = false) {
+    context (Context) inline fun <reified T> set(value: T, isSecure: Boolean = false) {
         val pref = getSharedPreferences(BuildConfig.APPLICATION_ID, Context.MODE_PRIVATE)
         pref.edit {
             when (value) {
-                is String -> putString(getKey(secure), value)
-                is Boolean -> putBoolean(getKey(secure), value)
-                is Float -> putFloat(getKey(secure), value)
-                is Long -> putLong(getKey(secure), value)
-                is Int -> putInt(getKey(secure), value)
+                is String -> putString(getKey(isSecure), value)
+                is Boolean -> putBoolean(getKey(isSecure), value)
+                is Float -> putFloat(getKey(isSecure), value)
+                is Long -> putLong(getKey(isSecure), value)
+                is Int -> putInt(getKey(isSecure), value)
             }
         }
     }
