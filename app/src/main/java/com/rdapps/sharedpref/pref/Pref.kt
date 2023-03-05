@@ -21,7 +21,7 @@ enum class Pref(val def: Any) {
     }
 
     context (Context) inline fun <reified T> set(value: T, isSecure: Boolean = false) {
-        val pref = getSharedPreferences(BuildConfig.APPLICATION_ID, Context.MODE_PRIVATE)
+        val pref = getSharedPreferences(BuildConfig.PREF_NAME, Context.MODE_PRIVATE)
         pref.edit {
             when (value) {
                 is String -> putString(getKey(isSecure), value)
@@ -38,7 +38,7 @@ enum class Pref(val def: Any) {
         isSecure: Boolean? = null,
         clazz: Class<T> = T::class.java
     ): T {
-        val pref = getSharedPreferences(BuildConfig.APPLICATION_ID, Context.MODE_PRIVATE)
+        val pref = getSharedPreferences(BuildConfig.PREF_NAME, Context.MODE_PRIVATE)
         val secure = isSecure ?: !pref.contains(getKey(false))
         val value = pref.all[getKey(secure)] ?: default ?: def
         return clazz.cast(value) ?: default ?: error("Cast Failure")

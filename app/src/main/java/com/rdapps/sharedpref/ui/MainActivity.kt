@@ -1,9 +1,9 @@
 package com.rdapps.sharedpref.ui
 
 import android.os.Bundle
-import android.text.TextUtils
-import android.view.View
 import androidx.activity.ComponentActivity
+import androidx.core.text.isDigitsOnly
+import androidx.core.view.isVisible
 import com.rdapps.sharedpref.databinding.ActivityMainBinding
 import com.rdapps.sharedpref.pref.Pref
 
@@ -23,11 +23,8 @@ class MainActivity : ComponentActivity() {
 
     private fun initView() = with(binding) {
         if (Pref.IsLoggedIn.get()) {
-            btnLogin.visibility = View.GONE
-            edtUserName.visibility = View.GONE
-            edtAge.visibility = View.GONE
-            tvDetails.visibility = View.VISIBLE
-            btnLogout.visibility = View.VISIBLE
+            groupLoggedIn.isVisible = true
+            groupLoggedOut.isVisible = false
 
             val loggedInTime = Pref.LoggedInTime.get(0L)
 
@@ -38,11 +35,8 @@ class MainActivity : ComponentActivity() {
             tvDetails.text = userDetails
 
         } else {
-            btnLogin.visibility = View.VISIBLE
-            edtUserName.visibility = View.VISIBLE
-            edtAge.visibility = View.VISIBLE
-            tvDetails.visibility = View.GONE
-            btnLogout.visibility = View.GONE
+            groupLoggedIn.isVisible = false
+            groupLoggedOut.isVisible = true
         }
     }
 
@@ -60,7 +54,7 @@ class MainActivity : ComponentActivity() {
             val userName = edtUserName.text.toString()
             val age = edtAge.text.toString()
 
-            if (!TextUtils.isEmpty(userName) && TextUtils.isDigitsOnly(age)) {
+            if (userName.isNotEmpty() && age.isDigitsOnly()) {
 
                 Pref.UserName.set(userName)
                 Pref.UserAge.set(age.toInt())
